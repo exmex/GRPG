@@ -1,0 +1,295 @@
+allprojects {
+    apply plugin: 'java'
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+evaluationDependsOn(':version')
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+
+apply plugin: 'forge'
+
+
+group= "com.gigatoni.greyscale" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "greyscale_" + project.mcversion
+
+ext.apiRailcraft = "./api/railcraft"
+ext.apiForestry = "./api/forestry"
+ext.apiRedstoneFlux = "./api/redstoneflux"
+ext.apiThaumcraft = "./api/thaumcraft"
+
+ext.dirLang = "./lang"
+
+ext.dirDest = './build/dist'
+
+minecraft {
+    version = project.mcversion + "-" + project.forgeversion + "-" + project.forgebranch
+    runDir = "run"
+
+    replace '@VERSION@', project.version
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir project.apiRailcraft
+            srcDir project.apiForestry
+            srcDir project.apiRedstoneFlux + "/src/main/java"
+            srcDir project.apiThaumcraft
+        }
+        resources {
+            srcDir project.dirLang
+        }
+    }
+}
+
+repositories {
+    maven { // the repo from which to get NEI and stuff
+        name 'CB Repo'
+        url "http://chickenbones.net/maven/"
+    }
+    maven { // The repo from which to get waila
+        name "Mobius Repo"
+        url "http://mobiusstrip.eu/maven"
+    }
+    maven {
+        name = "ic2"
+        url = "http://maven.ic2.player.to/"
+    }
+}
+
+configurations{
+    api
+    compile.extendsFrom api
+}
+
+dependencies {
+    api 'net.industrial-craft:industrialcraft-2:2.2.717-experimental:api'
+    api 'com.mod-buildcraft:buildcraft:6.4.11:dev'
+
+    api('mcp.mobius.waila:Waila:1.5.11-RC2-NONEI_1.7.10') {
+        exclude group: 'mcp.mobius.waila'
+    }
+    api "codechicken:CodeChickenLib:1.7.10-1.1.3.136:dev"
+    api "codechicken:CodeChickenCore:1.7.10-1.0.6.43:dev"
+    api "codechicken:NotEnoughItems:1.7.10-1.0.4.105:dev"
+}
+
+processResources
+        {
+            // this will ensure that this task is redone when the versions change.
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
+
+            // replace stuff in mcmod.info, nothing else
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
+
+                // replace version and mcversion
+                expand 'version':project.version, 'mcversion':project.minecraft.version
+            }
+
+            // copy everything else, thats not the mcmod.info
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+                exclude '**/*.md'
+            }
+        }
+
+runClient {
+    if( project.hasProperty('mcUsername') && project.hasProperty('mcPassword') ) {
+        args "--username=${project.mcUsername}"
+        args "--password=${project.mcPassword}"
+    }
+
+}
+
+debugClient {
+    if( project.hasProperty('mcUsername') && project.hasProperty('mcPassword') ) {
+        args "--username=${project.mcUsername}"
+        args "--password=${project.mcPassword}"
+    }
+}
+
+jar {
+    destinationDir = file("build/tmp")
+    archiveName = "main.jar"
+
+    from {
+        configurations.api.collect {
+            it.isDirectory() ? it : zipTree(it).matching {
+                include '**/api/**'
+                exclude '**/buildcraft/api/blueprints/**'
+                exclude '**/buildcraft/api/boards/**'
+                exclude '**/buildcraft/api/events/**'
+                exclude '**/buildcraft/api/facades/**'
+                exclude '**/buildcraft/api/filler/**'
+                exclude '**/buildcraft/api/fuels/**'
+                exclude '**/buildcraft/api/gates/**'
+                exclude '**/buildcraft/api/power/**'
+                exclude '**/buildcraft/api/recipes/**'
+                exclude '**/buildcraft/api/robots/**'
+                exclude '**/ic2/api/crops/**'
+                exclude '**/ic2/api/network/**'
+                exclude '**/ic2/api/event/**'
+                exclude '**/ic2/api/reactor/**'
+            }
+        }
+    }
+
+    into ('mods/railcraft/api') {
+        from project.apiRailcraft + "/LICENSE.md"
+    }
+    into ('forestry/api') {
+        from project.apiForestry + "/LICENSE.txt"
+    }
+    into ('thaumcraft/api') {
+        from project.apiThaumcraft + "/LICENSE"
+    }
+    into ('cofh/api') {
+        from project.apiRedstoneFlux + "/LICENSE - LGPLv3.txt"
+    }
+}
+
+task mainJarSigned ( type: Jar, dependsOn: 'reobf' ) {
+    from (zipTree(jar.getArchivePath())) {
+        exclude '**/api/**'
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDir = file("build/tmp")
+    archiveName = "signed.jar"
+
+    doLast {
+        if (project.hasProperty('signingKeystore')) {
+            ant.signjar(jar: getArchivePath(),
+                    alias: signingAlias,
+                    keystore: signingKeystore,
+                    storepass: signingStorepass)
+        } else if (project.hasProperty('signingAlias')) {
+            ant.signjar(jar: getArchivePath(),
+                    alias: signingAlias,
+                    storepass: signingStorepass)
+        } else {
+            println 'Signing disabled, gradle.properties is missing.'
+        }
+    }
+}
+
+task mainJar ( type: Zip, dependsOn: mainJarSigned ) {
+    from (zipTree(mainJarSigned.getArchivePath())) {
+        include '**'
+    }
+
+    from (zipTree(jar.getArchivePath())) {
+        include '**'
+        exclude '**/forestry/api/**'
+        exclude '**/uristqwerty/**'
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDir = file(dirDest)
+    includeEmptyDirs = false
+    extension = 'jar'
+}
+
+task devJarSigned ( type: Jar, dependsOn: 'classes' ) {
+    from(sourceSets.main.output) {
+        exclude '**/api/**'
+    }
+
+    destinationDir = file("build/tmp")
+    archiveName = "signed-dev.jar"
+
+    doLast {
+        if (project.hasProperty('signingKeystore')) {
+            ant.signjar(jar: getArchivePath(),
+                    alias: signingAlias,
+                    keystore: signingKeystore,
+                    storepass: signingStorepass)
+        } else if (project.hasProperty('signingAlias')) {
+            ant.signjar(jar: getArchivePath(),
+                    alias: signingAlias,
+                    storepass: signingStorepass)
+        } else {
+            println 'Signing disabled, gradle.properties is missing.'
+        }
+    }
+}
+
+task devJar ( type: Zip, dependsOn: devJarSigned ) {
+    from (zipTree(devJarSigned.getArchivePath())) {
+        include '**'
+    }
+
+    from(sourceSets.main.output) {
+        include '**'
+        exclude '**/forestry/api/**'
+        exclude '**/uristqwerty/**'
+    }
+
+    from {
+        configurations.api.collect {
+            it.isDirectory() ? it : zipTree(it).matching {
+                include '**/api/**'
+                exclude '**/buildcraft/api/blueprints/**'
+                exclude '**/buildcraft/api/filler/**'
+                exclude '**/ic2/api/crops/**'
+                exclude '**/ic2/api/network/**'
+                exclude '**/ic2/api/event/**'
+                exclude '**/ic2/api/reactor/**'
+            }
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    destinationDir = file(dirDest)
+    extension = 'jar'
+
+    classifier = 'dev'
+}
+
+task apiZip ( type: Zip ) {
+    from project.apiRailcraft
+    destinationDir = file(dirDest)
+    classifier = 'api'
+    extension = 'zip'
+}
+
+task releaseInit << {
+    println '*************************************************************'
+    println 'This build will be version: ' +  rootProject.version
+    println '*************************************************************'
+}
+
+task release << {
+}
+
+release.dependsOn releaseInit, mainJar, devJar, apiZip
+mainJar.shouldRunAfter releaseInit
+devJar.shouldRunAfter releaseInit
+apiZip.shouldRunAfter releaseInit
+release.shouldRunAfter uploadArchives
+
+artifacts {
+    archives mainJar, devJar, apiZip
+}
+
+idea { module { inheritOutputDirs = true } }

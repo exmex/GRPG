@@ -1,0 +1,11 @@
+[
+{
+  "modid": "greyscale",
+  "name": "Greyscale Dev",
+  "description": "Greyscale dev Mod",
+  "version": "1.7.10-1.0",
+  "mcversion": "1.7.10",
+  "authorList": ["GigaToni"],
+  "credits": "GigaToni"
+}
+]
