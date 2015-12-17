@@ -1,22 +1,29 @@
+/*
+* Thanks to multimote for making this awesome class! 
+**/
 package com.gigatoni.greyscale.utility;
 
+import com.gigatoni.greyscale.handler.ConfigHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.regex.Pattern;
 
-/**
- * Created by multimote on 05.07.14.
- */
 public class SchematicUtil {
     public Schematic get(String res){
         try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("assets/greyscale/mcschematic/"+res+".schematic");
+            //InputStream is = this.getClass().getClassLoader().getResourceAsStream("assets/greyscale/mcschematic/"+res+".schematic");
+            InputStream is = new FileInputStream(new File(ConfigHandler.schematicDir + "/" + res));
             if(is==null)
             {
                 LogHelper.warn("I can't load schematic, because i can't open file.");
@@ -30,12 +37,12 @@ public class SchematicUtil {
 
             byte[] blocks = nbtdata.getByteArray("Blocks");
             byte[] data = nbtdata.getByteArray("Data");
-            LogHelper.info("Loaded schem size: " + width + " x " + height + " x " + length);
+            LogHelper.debug("Loaded schem size: " + width + " x " + height + " x " + length);
             NBTTagList tileentities = nbtdata.getTagList("TileEntities", 10);
             is.close();
             return new Schematic(tileentities, width, height, length, blocks, data);
         } catch (Exception e) {
-            LogHelper.warn("I can't load schematic, because " + e.toString());
+            LogHelper.warn("Schematic loading failed! Error: " + e.toString());
             return null;
         }
     }
@@ -98,22 +105,22 @@ public class SchematicUtil {
             if(Block.getIdFromBlock(Blocks.torch)==blockId || Block.getIdFromBlock(Blocks.redstone_torch)==blockId)
                 return torchRotations.getMeta( (torchRotations.getSide(meta)+rotation)%4 );
 
-            if(meta<4 && Block.getBlockById(blockId) instanceof BlockDoor)
+            if(meta<4 && (Block.getBlockById(blockId) instanceof BlockDoor ||
+                    Block.getBlockById(blockId) instanceof BlockFenceGate))
                 return doorRotations.getMeta( (doorRotations.getSide(meta)+rotation)%4 );
 
-            if(Block.getIdFromBlock(Blocks.wall_sign)==blockId)
+            if(Block.getIdFromBlock(Blocks.wall_sign)==blockId ||
+                    Block.getIdFromBlock(Blocks.ladder)==blockId)
                 return signRotations.getMeta( (signRotations.getSide(meta)+rotation)%4 );
 
-            if(Block.getIdFromBlock(Blocks.ladder)==blockId)
-                return signRotations.getMeta( (signRotations.getSide(meta)+rotation)%4 );
-
-            if(Block.getIdFromBlock(Blocks.chest)==blockId || Block.getIdFromBlock(Blocks.ender_chest)==blockId)
+            if(Block.getIdFromBlock(Blocks.chest)==blockId ||
+                    Block.getIdFromBlock(Blocks.ender_chest)==blockId ||
+                    Block.getIdFromBlock(Blocks.furnace)==blockId ||
+                    Block.getIdFromBlock(Blocks.lit_furnace)==blockId)
                 return chestRotations.getMeta( (chestRotations.getSide(meta)+rotation)%4 );
 
-            if(Block.getIdFromBlock(Blocks.furnace)==blockId || Block.getIdFromBlock(Blocks.lit_furnace)==blockId)
-                return signRotations.getMeta( (signRotations.getSide(meta)+rotation)%4 );
-
-            if(Block.getIdFromBlock(Blocks.pumpkin)==blockId || Block.getIdFromBlock(Blocks.lit_pumpkin)==blockId)
+            if(Block.getIdFromBlock(Blocks.pumpkin)==blockId ||
+                    Block.getIdFromBlock(Blocks.lit_pumpkin)==blockId)
                 return pumpkinRotations.getMeta( (pumpkinRotations.getSide(meta)+rotation)%4 );
 
             if(Block.getBlockById(blockId) instanceof BlockStairs)

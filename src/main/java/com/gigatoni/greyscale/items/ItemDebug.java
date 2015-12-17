@@ -2,6 +2,7 @@ package com.gigatoni.greyscale.items;
 
 import com.gigatoni.greyscale.Castle_Mini;
 import com.gigatoni.greyscale.Greyscale;
+import com.gigatoni.greyscale.handler.ConfigHandler;
 import com.gigatoni.greyscale.reference.Reference;
 import com.gigatoni.greyscale.utility.SchematicUtil;
 import net.minecraft.block.Block;
@@ -40,7 +41,7 @@ public class ItemDebug extends Item {
     }
 
     public int getYOffset(){
-        return yOffset;
+        return 0;
     }
 
     public int getXShift() {
@@ -59,21 +60,21 @@ public class ItemDebug extends Item {
 
     private void NextSchem()
     {
-        if((Reference.schematics.length-1) > selectedSchem)
+        if((ConfigHandler.schematics.size()-1) > selectedSchem)
         {
             selectedSchem += 1;
-            yOffset = (int)Math.floor(Reference.schematicOffsets[selectedSchem].yCoord);
-            selectedSchemName = Reference.schematics[selectedSchem];
+            //yOffset = (int)Math.floor(Reference.schematicOffsets[selectedSchem].yCoord);
+            selectedSchemName = ConfigHandler.schematics.get(selectedSchem);
         }else{
             selectedSchem = 0;
-            yOffset = (int)Math.floor(Reference.schematicOffsets[selectedSchem].yCoord);
-            selectedSchemName = Reference.schematics[selectedSchem];
+            //yOffset = (int)Math.floor(Reference.schematicOffsets[selectedSchem].yCoord);
+            selectedSchemName = ConfigHandler.schematics.get(selectedSchem);
         }
 
         Reference.loadedSchematic = null;
-        Reference.loadedSchematic = schematicUtil.get(Reference.schematics[selectedSchem]);
+        Reference.loadedSchematic = schematicUtil.get(ConfigHandler.schematics.get(selectedSchem));
         if (Reference.loadedSchematic == null) {
-            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Schematic is ded!"));
+            Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Can't load schematic '" + selectedSchemName + "'"));
         }else{
             Minecraft.getMinecraft().thePlayer.addChatMessage(new ChatComponentText("Loaded Schematic '" + selectedSchemName + "'"));
         }
@@ -83,7 +84,7 @@ public class ItemDebug extends Item {
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
         if(!selectedSchemName.equals(""))
-            list.add(Reference.schematics[selectedSchem]);
+            list.add(selectedSchemName.substring(0, selectedSchemName.lastIndexOf('.')));
     }
 
     public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
@@ -129,7 +130,7 @@ public class ItemDebug extends Item {
             if (player.isSneaking()) {
                 NextSchem();
             } else {
-                if ((Reference.schematics.length - 1) >= selectedSchem && Reference.loadedSchematic != null) {
+                if ((ConfigHandler.schematics.size()-1) > selectedSchem && Reference.loadedSchematic != null) {
                     int rotation = MathHelper.floor_double((double) (player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 
                     player.addChatMessage(new ChatComponentText("Building started."));
@@ -140,14 +141,31 @@ public class ItemDebug extends Item {
                             for (int sx = 0; sx < Reference.loadedSchematic.width; sx++) {
 
                                 Block b = Block.getBlockById(Reference.loadedSchematic.blocks[i]);
+                                int rx = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[0];
+                                int rz = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[1];
                                 if (b != Blocks.air) {
-                                    int rx = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[0];
-                                    int rz = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[1];
+                                    if(b != Blocks.torch && b != Blocks.redstone_torch && b != Blocks.redstone_wire)
+                                        world.setBlock(x + rx, y + getYOffset() + sy, z + rz, b, schematicUtil.rotateMeta(Reference.loadedSchematic.blocks[i], Reference.loadedSchematic.data[i], rotation), 2);
+                                }
+                                else
                                     world.setBlockToAir(x + rx, y + getYOffset() + sy, z + rz);
+                                i++;
+                            }
+
+                    i = 0;
+                    for (int sy = 0; sy < Reference.loadedSchematic.height; sy++)
+                        for (int sz = 0; sz < Reference.loadedSchematic.length; sz++)
+                            for (int sx = 0; sx < Reference.loadedSchematic.width; sx++) {
+
+                                Block b = Block.getBlockById(Reference.loadedSchematic.blocks[i]);
+                                int rx = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[0];
+                                int rz = schematicUtil.blockCoordsRotation(sx - this.getXShift(), sz, rotation)[1];
+                                if (b == Blocks.torch || b == Blocks.redstone_torch || b == Blocks.redstone_wire) {
                                     world.setBlock(x + rx, y + getYOffset() + sy, z + rz, b, schematicUtil.rotateMeta(Reference.loadedSchematic.blocks[i], Reference.loadedSchematic.data[i], rotation), 2);
                                 }
                                 i++;
                             }
+
 
                     if (Reference.loadedSchematic.tileentities != null) {
                         for (int i1 = 0; i1 < Reference.loadedSchematic.tileentities.tagCount(); ++i1) {

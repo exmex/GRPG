@@ -30,7 +30,7 @@ public class Greyscale
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 
-        ConfigHandler.init(event.getSuggestedConfigurationFile());
+        ConfigHandler.init(event.getSuggestedConfigurationFile(), event.getModConfigurationDirectory());
 
         // Register instance.
         INSTANCE = this;
@@ -52,7 +52,7 @@ public class Greyscale
 
         NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, new GuiHandler());
         MinecraftForge.EVENT_BUS.register(new EntityHandler());
-        MinecraftForge.EVENT_BUS.register(new WorldRenderEvent());
+        //MinecraftForge.EVENT_BUS.register(new WorldRenderEvent());
 
         Items.Initialize();
     }
