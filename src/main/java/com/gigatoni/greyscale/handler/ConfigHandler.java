@@ -2,7 +2,6 @@ package com.gigatoni.greyscale.handler;
 
 import com.gigatoni.greyscale.reference.Reference;
 import com.gigatoni.greyscale.utility.LogHelper;
-import com.gigatoni.greyscale.utility.ResourceUtil;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.util.StatCollector;

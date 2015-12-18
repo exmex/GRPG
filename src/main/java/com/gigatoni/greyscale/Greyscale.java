@@ -10,12 +10,14 @@ import com.gigatoni.greyscale.reference.Reference;
 import com.gigatoni.greyscale.reference.SkillsReference;
 import com.gigatoni.greyscale.utility.LogHelper;
 import com.gigatoni.greyscale.utility.SchematicUtil;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY_CLASS, acceptedMinecraftVersions = "[1.7.10,)")

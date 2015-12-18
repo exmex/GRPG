@@ -18,6 +18,8 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 import java.util.List;
 import java.util.Random;
@@ -83,7 +85,7 @@ public class ItemDebug extends Item {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean par4)
     {
-        if(!selectedSchemName.equals(""))
+        if(!selectedSchemName.equals("") && selectedSchemName.lastIndexOf('.') > 0)
             list.add(selectedSchemName.substring(0, selectedSchemName.lastIndexOf('.')));
     }
 
@@ -208,6 +210,8 @@ public class ItemDebug extends Item {
 
         if(player.isSneaking())
             player.openGui(Greyscale.INSTANCE, Reference.SKILL_UI_ID, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+        else
+            player.openGui(Greyscale.INSTANCE, Reference.QUESTBOOK_UI_ID, world, (int)player.posX, (int)player.posY, (int)player.posZ);
         return item;
     }
 }

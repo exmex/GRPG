@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
@@ -28,7 +29,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.lwjgl.opengl.GL11.glScalef;
 
@@ -64,6 +67,10 @@ public class Mod_GuiHud extends Gui {
         if(event.entity instanceof EntityPlayer && event.isCancelable()) {
             event.setCanceled(true);
         }
+    }
+
+    private void RenderQuestList(RenderGameOverlayEvent event){
+
     }
 
     private void RenderSkull(RenderGameOverlayEvent event) {
@@ -111,6 +118,19 @@ public class Mod_GuiHud extends Gui {
         //GL11.glDisable(2896 /* GL_LIGHTING */);
         //GL11.glDisable(2929 /* GL_DEPTH_TEST */);
         GL11.glPopMatrix();
+    }
+
+    ArrayList<UUID> loadedCapes = new ArrayList<UUID>();
+    @SubscribeEvent
+    public void renderPlayer(RenderLivingEvent.Pre event) {
+        if (event.entity instanceof AbstractClientPlayer) {
+            AbstractClientPlayer player = (AbstractClientPlayer) event.entity;
+
+            if((player.getGameProfile().getId().toString().equals("0c312a86-5c74-48f1-8f54-f5837d518bec") || (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) && !loadedCapes.contains(player.getGameProfile().getId())) {
+                player.func_152121_a(MinecraftProfileTexture.Type.CAPE, new ResourceLocation(Reference.MOD_ID + ":textures/misc/cape.png"));
+                loadedCapes.add(player.getGameProfile().getId());
+            }
+        }
     }
 
     private void RenderHealth(RenderGameOverlayEvent event) {

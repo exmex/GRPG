@@ -1,4 +1,4 @@
-package com.gigatoni.greyscale.client.gui;
+package com.gigatoni.greyscale.client.gui.skilltree;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;

@@ -21,6 +21,7 @@ public class Reference {
 
 
     public static final int SKILL_UI_ID = 20;
+    public static final int QUESTBOOK_UI_ID = 21;
 
     public static CreativeTabs genericRPGItems = new CreativeTabs("GRPG Items") {
         @Override

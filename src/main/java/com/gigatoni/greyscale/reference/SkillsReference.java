@@ -1,7 +1,7 @@
 package com.gigatoni.greyscale.reference;
 
-import com.gigatoni.greyscale.client.gui.Skill;
-import com.gigatoni.greyscale.client.gui.SkillTree;
+import com.gigatoni.greyscale.client.gui.skilltree.Skill;
+import com.gigatoni.greyscale.client.gui.skilltree.SkillTree;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 

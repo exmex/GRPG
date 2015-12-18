@@ -1,6 +1,8 @@
 package com.gigatoni.greyscale.client.gui;
 
 import com.gigatoni.greyscale.client.ExtendedProperties;
+import com.gigatoni.greyscale.client.gui.skilltree.Skill;
+import com.gigatoni.greyscale.client.gui.skilltree.SkillTree;
 import com.gigatoni.greyscale.reference.Reference;
 import com.gigatoni.greyscale.reference.SkillsReference;
 import net.minecraft.client.gui.Gui;
@@ -15,9 +17,10 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class SkillsOverview extends GuiScreen {
+public class GuiSkillsOverview extends GuiScreen {
 
     private static final ResourceLocation skillsOverviewBG = new ResourceLocation(Reference.LOWERCASE_MOD_ID, "textures/gui/skillsUI/GuiSkills.png");
     //private static final ResourceLocation skillBar = new ResourceLocation(Reference.LOWERCASE_MOD_ID, "textures/gui/skillsUI/skillBar.png");
@@ -54,7 +57,7 @@ public class SkillsOverview extends GuiScreen {
     ArrayList<SkillTree> skillTrees;
     int activeTab;
 
-    public SkillsOverview()
+    public GuiSkillsOverview()
     {
         activeTab = 0;
         skillTrees = SkillsReference.skillTrees;
@@ -220,10 +223,9 @@ public class SkillsOverview extends GuiScreen {
         for(int i = 0; i < skillArr.size(); i++) {
             Skill skill = skillArr.get(i);
             if (isInPoint(mouseX, mouseY, x + (52 * i), y, 22, 22)) {
-                List list = new ArrayList();
+                List<String> list = new ArrayList<String>();
                 list.add(skill.name);
-                for (int j = 0; j < skill.description.length; j++)
-                    list.add(skill.description[j]);
+                Collections.addAll(list, skill.description);
                 drawHoveringText(list, mouseX, mouseY, fontRendererObj);
             }
         }
@@ -410,7 +412,7 @@ public class SkillsOverview extends GuiScreen {
             }
 
             if(isInPoint(mouseX, mouseY, j+offset, k+offset2, 28, 30)) {
-                List list = new ArrayList();
+                List<String> list = new ArrayList<String>();
                 list.add(guiTabs[i].name);
                 drawHoveringText(list, mouseX, mouseY, fontRendererObj);
             }
