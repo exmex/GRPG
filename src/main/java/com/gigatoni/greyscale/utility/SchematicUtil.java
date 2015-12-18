@@ -1,5 +1,5 @@
 /*
-* Thanks to multimote for making this awesome class! 
+* Thanks to multimote for making this awesome class!
 **/
 package com.gigatoni.greyscale.utility;
 
@@ -24,11 +24,6 @@ public class SchematicUtil {
         try {
             //InputStream is = this.getClass().getClassLoader().getResourceAsStream("assets/greyscale/mcschematic/"+res+".schematic");
             InputStream is = new FileInputStream(new File(ConfigHandler.schematicDir + "/" + res));
-            if(is==null)
-            {
-                LogHelper.warn("I can't load schematic, because i can't open file.");
-                return null;
-            }
 
             NBTTagCompound nbtdata = CompressedStreamTools.readCompressed(is);
             short width = nbtdata.getShort("Width");
@@ -39,6 +34,13 @@ public class SchematicUtil {
             byte[] data = nbtdata.getByteArray("Data");
             LogHelper.debug("Loaded schem size: " + width + " x " + height + " x " + length);
             NBTTagList tileentities = nbtdata.getTagList("TileEntities", 10);
+            NBTTagList entities = nbtdata.getTagList("Entities", 10);
+
+            if(entities.tagCount() > 0)
+                LogHelper.warn("Entities are not supported (yet)");
+            if(data.length > 0)
+                LogHelper.warn("Block Data is not supported (yet)");
+
             is.close();
             return new Schematic(tileentities, width, height, length, blocks, data);
         } catch (Exception e) {

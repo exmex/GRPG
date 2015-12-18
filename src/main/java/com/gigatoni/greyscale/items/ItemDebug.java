@@ -126,6 +126,12 @@ public class ItemDebug extends Item {
 
     @Override
     public boolean onItemUse(ItemStack is, EntityPlayer player, World world, int x, int y, int z, int side, float px, float py, float pz) {
+        if(!player.capabilities.isCreativeMode){
+            if(!world.isRemote)
+                player.addChatMessage(new ChatComponentText("You don't have permission to use this!"));
+            return false;
+        }
+
         if (!world.isRemote) {
             if (player.isSneaking()) {
                 NextSchem();
@@ -194,20 +200,14 @@ public class ItemDebug extends Item {
     @Override
     public ItemStack onItemRightClick(ItemStack item, World world, EntityPlayer player)
     {
+        if(!player.capabilities.isCreativeMode){
+            if(!world.isRemote)
+                player.addChatMessage(new ChatComponentText("You don't have permission to use this!"));
+            return item;
+        }
+
         if(player.isSneaking())
             player.openGui(Greyscale.INSTANCE, Reference.SKILL_UI_ID, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-        else {
-            int i = (int) Math.floor(player.posX);
-            int j = (int) Math.floor(player.posY);
-            int k = (int) Math.floor(player.posZ);
-
-            //k -= 10;
-            //i -= 10;
-
-            j -= 6;
-
-            Castle_Mini.Generate(world, i, j, k);
-        }
         return item;
     }
 }
