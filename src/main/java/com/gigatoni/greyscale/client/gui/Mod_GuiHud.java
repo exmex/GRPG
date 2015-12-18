@@ -55,8 +55,7 @@ public class Mod_GuiHud extends Gui {
         if((event.type.equals(RenderGameOverlayEvent.ElementType.HEALTH) ||
                 event.type.equals(RenderGameOverlayEvent.ElementType.FOOD) ||
                 event.type.equals(RenderGameOverlayEvent.ElementType.ARMOR) ||
-                event.type.equals(RenderGameOverlayEvent.ElementType.EXPERIENCE) ||
-                event.type.equals(RenderGameOverlayEvent.ElementType.TEXT)
+                event.type.equals(RenderGameOverlayEvent.ElementType.EXPERIENCE)
                 ) && event.isCancelable())
             event.setCanceled(true);
     }
