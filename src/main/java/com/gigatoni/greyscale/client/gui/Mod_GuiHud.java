@@ -175,9 +175,12 @@ public class Mod_GuiHud extends Gui {
         // Draw strings
         glScalef(0.7f, 0.7f, 0.7f);
         mc.fontRenderer.drawStringWithShadow(String.valueOf(MathHelper.ceiling_float_int(mc.thePlayer.experience * 100)) + "%", 152, 76, Color.GREEN.getRGB());
+        if(mc.thePlayer.experienceLevel > 999)
+            mc.fontRenderer.drawStringWithShadow("999", 47, 60, Color.GREEN.getRGB());
+        else
+            mc.fontRenderer.drawStringWithShadow(String.valueOf(mc.thePlayer.experienceLevel), 47, 60, Color.GREEN.getRGB());
         GL11.glPopMatrix();
         GL11.glPushMatrix();
-        mc.fontRenderer.drawStringWithShadow(String.valueOf(mc.thePlayer.experienceLevel), 35, 40, Color.GREEN.getRGB());
 
         mc.fontRenderer.drawStringWithShadow(String.valueOf((int) player.getHealth()) + "/" + (int) player.getMaxHealth(), 90, 17, Color.WHITE.getRGB());
         mc.fontRenderer.drawStringWithShadow(String.valueOf(MathHelper.ceiling_float_int(mc.thePlayer.getTotalArmorValue() / 20.0f * 100.0f)) + "/100", 90, 30, Color.WHITE.getRGB());
